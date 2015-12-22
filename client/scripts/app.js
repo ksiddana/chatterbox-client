@@ -123,13 +123,11 @@ app.populateRooms = function(results){
       // Add the Room to the select menu
       app.addRoom(uniqueChatRoomName);
 
+      // Once the chatrooms are fetched from the server, we
+      // want to populate the Drop Down Menu only once.
       app.chatrooms[uniqueChatRoomName] = true;
     }
   }
-  // console.log(app.chatrooms);
-  
-  // Select the menu option
-  $('#roomSelect').val();
 };
 
 app.addRoom = function(roomname) {
@@ -192,6 +190,7 @@ $(document).ready(function(){
     event.preventDefault();
     var newRoom = $('#newroom :input').val();
     app.addRoom(newRoom);
+    $('#newroom').text('');
   });
 
   $('#roomSelect').change(function() {
