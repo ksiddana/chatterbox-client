@@ -9,7 +9,11 @@
 //find a way to post created messages by user to the DOM.
 var app = {};
 
-
+app.onscreenMessages = {};
+app.server = 'https://api.parse.com/1/classes/chatterbox';
+app.$roomSelect = $('#roomSelect');
+app.roomname = 'Lobby';
+app.chatrooms = {};
 
 app.init = function(){
 
@@ -25,13 +29,13 @@ app.init = function(){
 // };
 
 app.send = function(data){
-console.log('this the message being passed into app.send ' + data.text);
+  console.log('this the message being passed into app.send ' + data.text);
 //console.log(JSON.stringify(message));
 
-  $.ajax({
+$.ajax({
 
     // This is the url you should use to communicate with the parse API server.
-    url: 'https://api.parse.com/1/classes/chatterbox',
+    url: app.server,
     type: 'POST',
     data: JSON.stringify(data),
     contentType: 'application/json',
@@ -39,8 +43,7 @@ console.log('this the message being passed into app.send ' + data.text);
       console.log('message sent', data);
 
       $('#chat').append(data);
-      //app.addMessage(data);
-      //console.log(data);
+
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -49,22 +52,32 @@ console.log('this the message being passed into app.send ' + data.text);
   });
 };
 
-app.fetch = function(data){
-  
+app.fetch = function(){
+
+  var roomSelected = $("#roomSelect option:selected" ).text();
+
+  if (app.roomname === undefined || null) {
+    app.roomname = 'Lobby';
+  } 
+
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     //url: 'https://api.parse.com/1/classes/chatterbox'
-    url: 'https://api.parse.com/1/classes/chatterbox',
+    url: app.server,
     type: 'GET',
-    data: JSON.stringify(data),
+    data: { order: '-createdAt'},
     contentType: 'application/json',
     success: function (data) {
+      // console.log(data);
+      // app.clearMessages();
+      app.populateRooms(data.results)
+
+      if (data.results.roomname === roomSelected) {
+        app.displayMessages(data.results);  
+      } else {
+        app.displayMessages(data.results);
+      }
       
-      //var arrayOfData = [];
-      //arrayOfData.push(data);
-      console.log(data);
-      app.clearMessages();
-      app.addMessage(data);
 
     },
     error: function (data) {
@@ -72,75 +85,85 @@ app.fetch = function(data){
       console.error('chatterbox: Failed to send message');
     }
   // $('.message').append('hello');
-  });
+});
 
 };
 
-// app.soundCloud = function(){
+app.renderMessage = function(message) {
 
-// }
+  var roomSelected = $("#roomSelect option:selected" ).text();
 
-var $chat = $('#chats');
-//console.log($chat);
-
-app.addMessage = function(data){
-console.log();
-var main = document.body.children[0];
-
-  //console.log(main.children[2]);
-  if(data.results){
-
-    //console.log(data);
-    for (var i = 0; i < data.results.length; i++) {
-      var $chat = $('<div class="chat">') 
-      var $username = $('<a href="#" class="username">' + data.results[i].username +'</a>');
-      var $text = $('<div class="text">'+ data.results[i].text + '</div>');
-      // var $message = $('<div class="text">' + message + '</div>'); 
-      
-      
-      $chat.append($username);
-      $chat.append($text).val(data.text);
-
-      $('#main').append($chat);
-    };
+  if ( message.roomname === roomSelected ) {
+    var $username = $('<a href="#" class="username">' + message.username +'</a>');
+    var $text = $('<div class="text">'+ message.text + '<span class="roomname">' + message.roomname + '</span>' + '</div>');
+    var $chat = $('<div>', {class: 'chat', 'data-id': message.objectId, 'data-roomname': message.roomname}).append($username, $text);
   }
 
-  var $chat = $('<div class="chat">') 
-  var $username = $('<a href="#" class="username">' + data.username + '</a>');
-  var $text = $('<div class="text">'+ data.text + '</div>');
-  // var $message = $('<div class="text">' + message + '</div>'); 
+  return $chat
+}
+
+app.displayMessage = function(message) {
   
-  $chat.append($username);
-  $chat.append($text).val(data.text);
-  $('#main').append($chat);
-  //currentMessages.push('hi');
+  //if (!app.onscreenMessages[message.objectId]) {
+  //if ( message.roomname === roomSelected ) {
+      var $html = app.renderMessage(message);
 
+      $('#chats').append($html);
+      //app.onscreenMessages[message.objectId] = true;
+  //}
+}
 
-    //$('#chats').append($message);
-    //console.log($chat);
+app.displayMessages = function(messages) {
 
-/*    $('.username').on('click', function() {
-      var userName = $('.username').val();
-      console.log(userName);
-      app.addFriend();
-    });*/
-
-};
+  for (var i = 0; i < messages.length; i++) {
+    app.displayMessage(messages[i]);
+  }
+}
 
 app.clearMessages = function(){
   //alert('in the clearing function')
 
-    var $chat = $('#chats');
+  var $chat = $('#chats');
     //debugger
     $('.chat').remove();
+    $('.chatroom').remove();
 
+  };
+
+app.populateRooms = function(results){
+
+  for (var i = 0; i < results.length; i++) {
+    var uniqueChatRoomName = results[i].roomname;
+    // console.log(uniqueChatRoomName && !chatrooms[uniqueChatRoomName] || chatrooms[uniqueChatRoomName] === null);
+    if (uniqueChatRoomName && !app.chatrooms[uniqueChatRoomName] && app.chatrooms[uniqueChatRoomName] !== null) {
+      
+      // Add the Room to the select menu
+      app.addRoom(uniqueChatRoomName);
+
+      app.chatrooms[uniqueChatRoomName] = true;
+    }
+  }
+  // console.log(chatrooms);
+  
+  // Select the menu option
+  $('#roomSelect').val();
 };
 
-app.addRoom = function(roomname){
-  console.log("Entering ", roomname);
-  var roomOption = $('<option value="' + roomname + '">'+roomname+'</option>');
-  $(".room").append(roomOption);
-};
+app.addRoom = function(roomname) {
+
+      // console.log(roomname);
+      // Prevent XSS by escaping with DOM methods
+      var $option = $('<option value="' + roomname + '">'+ roomname +'</option>');
+      // Add to select
+      $('#roomSelect').append($option);
+}
+
+app.changeRoom = function(roomname) {
+
+  app.clearMessages();
+  app.displayMessage()
+
+}
 
 var friend = [];
 
@@ -148,10 +171,9 @@ app.addFriend = function(username) {
   console.log("add Friend is being called it's");
   friend.push(username);
   console.log(friend);
-  
+
   for (var i = 0; i < friend.length; i++) {
-    console.log('this')
-    //console.log($());
+  //console.log($());
   };
 };
 
@@ -160,7 +182,7 @@ app.handleSubmit = function(input){
   var message = {
     username: 'guyWithCoolPants_98',
     text: input,
-    roomname: "4chan"
+    roomname: $('#roomSelect').val()
   };
 
   app.send(message);
@@ -180,36 +202,36 @@ $(document).ready(function(){
   //   app.fetch();
   // });
 
-  $('#send').on('submit', function(event){
-    event.preventDefault();
-    var writeText = $('#send :input').val();
-    app.handleSubmit(writeText);
-  });
+$('#send').on('submit', function(event){
+  event.preventDefault();
+  var writeText = $('#send :input').val();
+  app.handleSubmit(writeText);
+});
 
-  $(document).on('click', '.username', function(event){
-    event.preventDefault();
-    var username = $(this).text();
-    console.log(username);
-    app.addFriend(username);
-  });
+$(document).on('click', '.username', function(event){
+  event.preventDefault();
+  var username = $(this).text();
+  console.log(username);
+  app.addFriend(username);
+});
 
-  $('#newroom').on('submit', function(event){
-    event.preventDefault();
-    var newRoom = $('#newroom :input').val();
-    app.addRoom(newRoom);
-  });
+$('#newroom').on('submit', function(event){
+  event.preventDefault();
+  var newRoom = $('#newroom :input').val();
+  app.addRoom(newRoom);
+});
 
-  $('.room').change(function() {
-    var selectedVal = this.value;
-    console.log("Selecting the: ", selectedVal);
-  });
+$('#roomSelect').change(function() {
+  console.log("Selecting Room");
+  var selectedVal = $("#roomSelect option:selected" ).text();
+  console.log("Selecting the: ", selectedVal);
+  app.changeRoom(selectedVal);
 
- 
- });
+});
 
-setInterval(app.init, 10000);
+});
 
-console.log('this a');
+setInterval(app.init, 5000);
 
 
 
