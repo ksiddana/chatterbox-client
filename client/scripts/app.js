@@ -18,15 +18,7 @@ app.chatrooms = {};
 app.init = function(){
 
   app.fetch();
-  //app.handleSubmit();
 };
-
-//'<img src="images/bird-03.jpg height="42" width="42">'
-// var message = {
-//   username: 'TGA Hacks',
-//   text: 'Be Hacked or be Hacked',
-//   roomname: 'You be Gone Yaaarrrr !!!!  '
-// };
 
 app.send = function(data){
   console.log('this the message being passed into app.send ' + data.text);
@@ -54,8 +46,6 @@ $.ajax({
 
 app.fetch = function(){
 
-
-
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     //url: 'https://api.parse.com/1/classes/chatterbox'
@@ -64,13 +54,10 @@ app.fetch = function(){
     data: { order: '-createdAt'},
     contentType: 'application/json',
     success: function (data) {
-      // console.log(data);
-      // app.clearMessages();
       
         app.populateRooms(data.results)
 
         app.displayMessages(data.results);  
-      
 
     },
     error: function (data) {
@@ -121,7 +108,6 @@ app.displayMessages = function(messages) {
 }
 
 app.clearMessages = function(){
-  //alert('in the clearing function')
 
     $('#chats').html('');
 
@@ -189,16 +175,6 @@ app.handleSubmit = function(input){
 
 $(document).ready(function(){
 
-  //$('#main').append('<div id="chats">');
-  //$('#main').append('<div id="roomSelect>')
-  //$('#chats').append('<div class="message"></div>');
-
-
-  // $('body').on('click','#refresh', function() {
-  //   console.log('the click handler is operating');
-  //   app.fetch();
-  // });
-
   $('#send').on('submit', function(event){
     event.preventDefault();
     var writeText = $('#send :input').val();
@@ -219,7 +195,7 @@ $(document).ready(function(){
   });
 
   $('#roomSelect').change(function() {
-    var selectedVal = $("#roomSelect option:selected" ).text();
+    //var selectedVal = $("#roomSelect option:selected" ).text();
     app.roomname = $("#roomSelect").val();
     app.clearMessages();
     app.fetch();
