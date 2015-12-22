@@ -54,11 +54,7 @@ $.ajax({
 
 app.fetch = function(){
 
-  var roomSelected = $("#roomSelect option:selected" ).text();
 
-  if (app.roomname === undefined || null) {
-    app.roomname = 'Lobby';
-  } 
 
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
@@ -70,13 +66,10 @@ app.fetch = function(){
     success: function (data) {
       // console.log(data);
       // app.clearMessages();
-      app.populateRooms(data.results)
+      
+        app.populateRooms(data.results)
 
-      if (data.results.roomname === roomSelected) {
         app.displayMessages(data.results);  
-      } else {
-        app.displayMessages(data.results);
-      }
       
 
     },
@@ -84,16 +77,22 @@ app.fetch = function(){
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to send message');
     }
-  // $('.message').append('hello');
 });
 
 };
 
 app.renderMessage = function(message) {
 
-  var roomSelected = $("#roomSelect option:selected" ).text();
+  // debugger
+/*  if (!message.roomname){
+    message.roomname = 'Lobby';
+  }*/
+  
+  if (message.roomname === null) {
+    message.roomname = app.roomname;
+  }
 
-  if ( message.roomname === roomSelected ) {
+  if ( message.roomname === app.roomname) {
     var $username = $('<a href="#" class="username">' + message.username +'</a>');
     var $text = $('<div class="text">'+ message.text + '<span class="roomname">' + message.roomname + '</span>' + '</div>');
     var $chat = $('<div>', {class: 'chat', 'data-id': message.objectId, 'data-roomname': message.roomname}).append($username, $text);
@@ -106,6 +105,7 @@ app.displayMessage = function(message) {
   
   //if (!app.onscreenMessages[message.objectId]) {
   //if ( message.roomname === roomSelected ) {
+      // app.clearMessages();
       var $html = app.renderMessage(message);
 
       $('#chats').append($html);
@@ -123,10 +123,7 @@ app.displayMessages = function(messages) {
 app.clearMessages = function(){
   //alert('in the clearing function')
 
-  var $chat = $('#chats');
-    //debugger
-    $('.chat').remove();
-    $('.chatroom').remove();
+    $('#chats').html('');
 
   };
 
@@ -135,7 +132,7 @@ app.populateRooms = function(results){
   for (var i = 0; i < results.length; i++) {
     var uniqueChatRoomName = results[i].roomname;
     // console.log(uniqueChatRoomName && !chatrooms[uniqueChatRoomName] || chatrooms[uniqueChatRoomName] === null);
-    if (uniqueChatRoomName && !app.chatrooms[uniqueChatRoomName] && app.chatrooms[uniqueChatRoomName] !== null) {
+    if (uniqueChatRoomName && !app.chatrooms[uniqueChatRoomName]) {
       
       // Add the Room to the select menu
       app.addRoom(uniqueChatRoomName);
@@ -143,7 +140,7 @@ app.populateRooms = function(results){
       app.chatrooms[uniqueChatRoomName] = true;
     }
   }
-  // console.log(chatrooms);
+  // console.log(app.chatrooms);
   
   // Select the menu option
   $('#roomSelect').val();
@@ -202,36 +199,36 @@ $(document).ready(function(){
   //   app.fetch();
   // });
 
-$('#send').on('submit', function(event){
-  event.preventDefault();
-  var writeText = $('#send :input').val();
-  app.handleSubmit(writeText);
+  $('#send').on('submit', function(event){
+    event.preventDefault();
+    var writeText = $('#send :input').val();
+    app.handleSubmit(writeText);
+  });
+
+  $(document).on('click', '.username', function(event){
+    event.preventDefault();
+    var username = $(this).text();
+    console.log(username);
+    app.addFriend(username);
+  });
+
+  $('#newroom').on('submit', function(event){
+    event.preventDefault();
+    var newRoom = $('#newroom :input').val();
+    app.addRoom(newRoom);
+  });
+
+  $('#roomSelect').change(function() {
+    var selectedVal = $("#roomSelect option:selected" ).text();
+    app.roomname = $("#roomSelect").val();
+    app.clearMessages();
+    app.fetch();
+
+  });
+
 });
 
-$(document).on('click', '.username', function(event){
-  event.preventDefault();
-  var username = $(this).text();
-  console.log(username);
-  app.addFriend(username);
-});
-
-$('#newroom').on('submit', function(event){
-  event.preventDefault();
-  var newRoom = $('#newroom :input').val();
-  app.addRoom(newRoom);
-});
-
-$('#roomSelect').change(function() {
-  console.log("Selecting Room");
-  var selectedVal = $("#roomSelect option:selected" ).text();
-  console.log("Selecting the: ", selectedVal);
-  app.changeRoom(selectedVal);
-
-});
-
-});
-
-setInterval(app.init, 5000);
+setInterval(app.init, 3000);
 
 
 
