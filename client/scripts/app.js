@@ -1,12 +1,4 @@
-
-// YOUR CODE HERE:
-
-//Objective: post and update messages to the chatter box server.
-
-//find a way to retrieve the meassage from the server and post them to the DOM.
-  //seperate: username, message, roomname (but within teh same message)
-
-//find a way to post created messages by user to the DOM.
+// Post created messages by user to the DOM.
 var app = {};
 
 // Add a property to the application that keeps track of the most recent messages

@@ -5,57 +5,32 @@
     <title>chatterbox</title>
     <link rel="stylesheet" href="styles/styles.css">
 
-    <!-- dependencies -->
-    <script src="bower_components/jquery/jquery.min.js"></script>
-
-    <script src="bower_components/underscore/underscore-min.js"></script>
-    <script src="bower_components/backbone/backbone.js"></script>
-        <!-- your scripts -->
-    <script src="env/config.js"></script>
-    <script src="scripts/app.js"></script>
+      <!-- dependencies -->
+      <script src="bower_components/jquery/jquery.min.js"></script>
+      <script src="bower_components/underscore/underscore-min.js"></script>
+      <script src="bower_components/backbone/backbone.js"></script>
+      <script src="env/config.js"></script>
+      <script src="scripts/app.js"></script>
   </head>
   <body>
 
-    <!-- full featured solution: -->
-    <script>
-    </script>
-    <!-- end full featured solution -->
-        <div id="main">
-      <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
 
-      <!-- <div class="spinner"><img src="images/spiffygif_46x46.gif"></div> -->
-      <div class="rooms">
-        Room:
-        <select id="roomSelect"></select>
-      </div>
-
-      <form action="#" id="send" method="post">
-        <input type="text" id="message" value="Send a Message"/>
-        <input type="submit" name="submit" class="submit"/>
-      </form>
-      
-      <form id="newroom">
-        <input type='text' value="Enter a Room"><input class='room' type='submit' value='Enter'>
-      </form>
-      
-      <div id="chats"></div>
-      <script>
-        // fully-featured solution: 
-        // $(app.init.bind(app));
-        //simplified solution:
-        $(function() {
-          app.init();
-        });
-        // Bakbone implementation: 
-        /*$(function() {
-          var messages = new Messages();
-          messages.loadMsgs();
-          var formView = new FormView({el: $('#main'), collection: messages});
-          var messagesView = new MessagesView({collection:messages});
-          setInterval( messages.loadMsgs.bind(messages), 1000);
-        });*/
-      </script>
+      <div id="main">
+          <h1>chatterbox</h1>
+          <div class="rooms">Room:
+            <select id="roomSelect"></select>
           </div>
+
+          <form action="#" id="send" method="post">
+            <input type="text" id="message" value="Send a Message"/>
+            <input type="submit" name="submit" class="submit"/>
+          </form>
+      
+          <form id="newroom">
+            <input type='text' value="Enter a Room"><input class='room' type='submit' value='Enter'>
+          </form>
+      
+          <div id="chats"></div>
+     </div>
   </body>
 </html>
